@@ -113,7 +113,36 @@ function _getResponse() {
           case 0:
             _context.prev = 0;
             _context.next = 3;
-            return fetch(request);
+            return new Promise(function (res, rej) {
+              var options = config;
+
+              if (!options.hasOwnProperty('headers')) {
+                options = Object.assign(options, {
+                  "headers": {}
+                });
+              }
+
+              if (!options.hasOwnProperty('data')) {
+                options = Object.assign(options, {
+                  "data": {}
+                });
+              }
+
+              options.url = buildFullPath(options.baseURL, options.url);
+
+              if (options.method === 'post') {
+                if (options.headers['Content-Type'] === 'application/json') {
+                  cordova.plugin.http.setDataSerializer('json');
+                  options.data = JSON.parse(options.data);
+                } else if (options.headers['Content-Type'].match(/^multipart\/form-data;/)) {
+                  cordova.plugin.http.setDataSerializer('multipart');
+                } else {
+                  cordova.plugin.http.setDataSerializer('urlencoded');
+                }
+              }
+
+              cordova.plugin.http.sendRequest(options.url, options, res, rej);
+            });
 
           case 3:
             stageOne = _context.sent;
@@ -123,72 +152,27 @@ function _getResponse() {
           case 6:
             _context.prev = 6;
             _context.t0 = _context["catch"](0);
-            return _context.abrupt("return", Promise.reject(createError('Network Error', config, null, request)));
+            return _context.abrupt("return", Promise.reject(createError(JSON.stringify(_context.t0), config, null, request)));
 
           case 9:
             response = {
-              ok: stageOne.ok,
+              // ok: stageOne.ok,
               status: stageOne.status,
               statusText: stageOne.statusText,
-              headers: new Headers(stageOne.headers),
+              // headers: new Headers(stageOne.headers), // Make a copy of headers
+              headers: stageOne.headers,
               // Make a copy of headers
               config: config,
               request: request
             };
 
-            if (!(stageOne.status >= 200 && stageOne.status !== 204)) {
-              _context.next = 34;
-              break;
+            if (stageOne.status >= 200 && stageOne.status !== 204) {
+              response.data = stageOne.data;
             }
 
-            _context.t1 = config.responseType;
-            _context.next = _context.t1 === 'arraybuffer' ? 14 : _context.t1 === 'blob' ? 18 : _context.t1 === 'json' ? 22 : _context.t1 === 'formData' ? 26 : 30;
-            break;
-
-          case 14:
-            _context.next = 16;
-            return stageOne.arrayBuffer();
-
-          case 16:
-            response.data = _context.sent;
-            return _context.abrupt("break", 34);
-
-          case 18:
-            _context.next = 20;
-            return stageOne.blob();
-
-          case 20:
-            response.data = _context.sent;
-            return _context.abrupt("break", 34);
-
-          case 22:
-            _context.next = 24;
-            return stageOne.json();
-
-          case 24:
-            response.data = _context.sent;
-            return _context.abrupt("break", 34);
-
-          case 26:
-            _context.next = 28;
-            return stageOne.formData();
-
-          case 28:
-            response.data = _context.sent;
-            return _context.abrupt("break", 34);
-
-          case 30:
-            _context.next = 32;
-            return stageOne.text();
-
-          case 32:
-            response.data = _context.sent;
-            return _context.abrupt("break", 34);
-
-          case 34:
             return _context.abrupt("return", Promise.resolve(response));
 
-          case 35:
+          case 12:
           case "end":
             return _context.stop();
         }
