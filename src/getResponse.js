@@ -26,7 +26,14 @@ export default async function getResponse(request, config) {
           } else {
             cordova.plugin.http.setDataSerializer('urlencoded');
           }
+        } else if (options.method === 'get') {
+          if (options.params) {
+            Object.keys(options.params).forEach(function(key) {
+              options.params[key] = options.params[key] ?? '';
+            });
+          }
         }
+
         cordova.plugin.http.sendRequest(options.url, options, res, rej);
       });
     } catch (e) {
