@@ -146,6 +146,14 @@
                   } else {
                     cordova.plugin.http.setDataSerializer('urlencoded');
                   }
+                } else if (options.method === 'get') {
+                  if (options.params) {
+                    Object.keys(options.params).forEach(function (key) {
+                      var _options$params$key;
+
+                      options.params[key] = (_options$params$key = options.params[key]) !== null && _options$params$key !== void 0 ? _options$params$key : '';
+                    });
+                  }
                 }
 
                 cordova.plugin.http.sendRequest(options.url, options, res, rej);
