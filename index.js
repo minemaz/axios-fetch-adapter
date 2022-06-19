@@ -59,7 +59,7 @@ async function getResponse(request, config) {
           if (options.headers['Content-Type'] === 'application/json') {
             cordova.plugin.http.setDataSerializer('json');
             options.data = JSON.parse(options.data);
-          } else if (options.headers['Content-Type'].match(/^multipart\/form-data;/)){
+          } else if (options.headers['Content-Type'].match(/^multipart\/form-data(;?)/)){
             cordova.plugin.http.setDataSerializer('multipart');
           } else {
             cordova.plugin.http.setDataSerializer('urlencoded');
